@@ -2,8 +2,6 @@ import java.io.FileWriter
 import java.sql.{Driver, DriverManager}
 import java.util.Arrays
 
-
-
 /** Extracts words from articles about one topic - beer. Filter the most common words.*/
 
 object Beers extends App {
@@ -67,14 +65,11 @@ object Beers extends App {
 
   def createNewDatabase() = {
     val environmentVars = System.getenv()
-    //environmentVars.forEach((k,v) => println(k,v))
-    //println("SCALA_HOME", environmentVars.get("SCALA_HOME"))
-    //println("SQLITE_HOME", environmentVars.get("SQLITE_HOME"))
 
     //val properties = System.getProperties()
     val sqlite_home = environmentVars.get("SQLITE_HOME").replace("\\", "/")
 
-    val dbname = "beers.db"
+    val dbname = "beersDB.db"
     println(s"Creating DB $dbname")
     val url = s"jdbc:sqlite:$sqlite_home/db/$dbname"
 
@@ -83,7 +78,7 @@ object Beers extends App {
     //lets make a table!
     val sql =
       """
-        |CREATE TABLE IF NOT EXISTS beers (
+        |CREATE TABLE IF NOT EXISTS beersTable (
         |	word_id INTEGER PRIMARY KEY,
         |	word TEXT NOT NULL,
         |	word_count INTEGER NOT NULL);
@@ -95,8 +90,44 @@ object Beers extends App {
 
   val beerDB = createNewDatabase()
 
+  def writeToDatabase(beerArray: Array[(String,Int)], fName: String) {
+    val insertSql =
+      """
+        |INSERT INTO beersTable (
+        |word_id, word, word_count)
+        |VALUES(?,?,?)
+        |""".stripMargin
+
+    val environmentVars = System.getenv()
+    val sqlite_home = environmentVars.get("SQLITE_HOME").replace("\\", "/")
+    val dbname = fName
+    val url = s"jdbc:sqlite:$sqlite_home/db/$dbname"
+
+    val conn = DriverManager.getConnection(url)
+
+    val pstmt = conn.prepareStatement(insertSql)
+
+    //FIXME get an integer. Something wrong with transfering the filtering to Scala language. Works in DBeaver
+    for (r <- beerArray) {
+      val lastID =
+      """
+      |SELECT word_id FROM beersTable
+      |ORDER BY word_id
+      |DESC LIMIT 1|""".stripMargin
+
+      val word_id = lastID + 1
+      val word = beerArray(i)._1 //FIXME don't know why it does not work
+      val word_count = beerArray(i)._2 //FIXME don't know why it does not work
 
 
+      pstmt.setInt(1, word_id)
+      pstmt.setString(2, word)
+      pstmt.setInt(3, word_count)
+      pstmt.execute()
+    }
+    pstmt.close()
+
+  }
 
   /** TODO Here should be a function that saves to a database. */
 
@@ -105,4 +136,7 @@ object Beers extends App {
   val beerArray = WordCount(mySeq)
   println(beerArray)
   /** TODO Save to the database. */
+
+  val writing = writeToDatabase(beerArray,"beersDB.db")
+
 }
