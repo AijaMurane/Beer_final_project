@@ -1,5 +1,7 @@
 import java.io.FileWriter
+import java.sql.{Driver, DriverManager}
 import java.util.Arrays
+
 
 
 /** Extracts words from articles about one topic - beer. Filter the most common words.*/
@@ -62,6 +64,39 @@ object Beers extends App {
 
     uniqueTuples
     }
+
+  def createNewDatabase() = {
+    val environmentVars = System.getenv()
+    //environmentVars.forEach((k,v) => println(k,v))
+    //println("SCALA_HOME", environmentVars.get("SCALA_HOME"))
+    //println("SQLITE_HOME", environmentVars.get("SQLITE_HOME"))
+
+    //val properties = System.getProperties()
+    val sqlite_home = environmentVars.get("SQLITE_HOME").replace("\\", "/")
+
+    val dbname = "beers.db"
+    println(s"Creating DB $dbname")
+    val url = s"jdbc:sqlite:$sqlite_home/db/$dbname"
+
+    val conn = DriverManager.getConnection(url)
+
+    //lets make a table!
+    val sql =
+      """
+        |CREATE TABLE IF NOT EXISTS beers (
+        |	word_id INTEGER PRIMARY KEY,
+        |	word TEXT NOT NULL,
+        |	word_count INTEGER NOT NULL);
+        |""".stripMargin
+
+    val statement = conn.createStatement()
+    val resultSet = statement.execute(sql)
+  }
+
+  val beerDB = createNewDatabase()
+
+
+
 
   /** TODO Here should be a function that saves to a database. */
 
