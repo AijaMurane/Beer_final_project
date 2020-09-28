@@ -1,7 +1,6 @@
 import java.io.FileWriter
 import java.sql.{Driver, DriverManager}
 import java.util.Arrays
-
 import scala.collection.mutable.ListBuffer
 
 /** Extracts words from articles about one topic - beer. Filter the most common words.*/
@@ -184,15 +183,24 @@ object Beers extends App {
     val statement = conn.createStatement()
     val resultSet = statement.executeQuery(sql)
 
+    val meta = resultSet.getMetaData
+    var colSeq = ListBuffer[String]()
+    for (i <- 1 to meta.getColumnCount) {
+      colSeq += meta.getColumnName(i)
+    }
+
+    val resultsBuffer = scala.collection.mutable.ListBuffer.empty[Seq[(String,String)]]
+
+    while ( resultSet.next() ) {
+      val row = colSeq.map(col => (col, resultSet.getString(col)))
+      resultsBuffer.append(row.toSeq)
+    }
+    val results = resultsBuffer.toSeq
 
 
-
-
+    results.foreach(println)
   }
 
   val mergedResult = mergeSameWord("beersDB.db")
-
-
-
 
 }
