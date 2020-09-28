@@ -2,6 +2,8 @@ import java.io.FileWriter
 import java.sql.{Driver, DriverManager}
 import java.util.Arrays
 
+import scala.collection.mutable.ListBuffer
+
 /** Extracts words from articles about one topic - beer. Filter the most common words.*/
 
 object Beers extends App {
@@ -64,10 +66,10 @@ object Beers extends App {
     //filtering unique values and sorting them from most to least frequent words
     val uniqueTuples = arrayTuples.toSet.toArray.sortBy(_._2).reverse
 
-    //the printing is for checking the result
+    /**the printing is for checking the result
     for (w <- uniqueTuples) {
       println(w)
-    }
+    } */
 
     uniqueTuples
     }
@@ -159,5 +161,38 @@ object Beers extends App {
   val beerArray = WordCount(mySeq1) ++ WordCount(mySeq2) ++ WordCount(mySeq3)
   println(beerArray)
   val writing = writeToDatabase(beerArray,"beersDB.db")
+
+  def mergeSameWord(fName: String) = {
+    val environmentVars = System.getenv()
+
+    //val properties = System.getProperties()
+    val sqlite_home = environmentVars.get("SQLITE_HOME").replace("\\", "/")
+
+    val dbname = fName
+    val url = s"jdbc:sqlite:$sqlite_home/db/$dbname"
+
+    val conn = DriverManager.getConnection(url)
+
+    //lets filter
+    val sql =
+      """
+        |SELECT DISTINCT bt.word, SUM(bt.word_count) WordSum FROM beersTable bt
+        |GROUP BY bt.word
+        |ORDER BY bt.word_count DESC
+        |LIMIT 100""".stripMargin
+
+    val statement = conn.createStatement()
+    val resultSet = statement.executeQuery(sql)
+
+
+
+
+
+  }
+
+  val mergedResult = mergeSameWord("beersDB.db")
+
+
+
 
 }
