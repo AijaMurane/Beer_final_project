@@ -186,19 +186,16 @@ object Beers extends App {
     val meta = resultSet.getMetaData
     var colSeq = ListBuffer[String]()
     for (i <- 1 to meta.getColumnCount) {
+      val meta1 = meta.getColumnName(i) + " "
+      print(meta1)
       colSeq += meta.getColumnName(i)
     }
 
-    val resultsBuffer = scala.collection.mutable.ListBuffer.empty[Seq[(String,String)]]
-
     while ( resultSet.next() ) {
-      val row = colSeq.map(col => (col, resultSet.getString(col)))
-      resultsBuffer.append(row.toSeq)
+      println()
+      colSeq.map(col => print(resultSet.getString(col) + " "))
     }
-    val results = resultsBuffer.toSeq
 
-
-    results.foreach(println)
   }
 
   val mergedResult = mergeSameWord("beersDB.db")
