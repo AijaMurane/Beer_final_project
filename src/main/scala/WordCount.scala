@@ -19,11 +19,6 @@ object WordCount {
     //filtering unique values and sorting them from most to least frequent words
     val uniqueTuples = arrayTuples.toSet.toArray.sortBy(_._2).reverse
 
-    /**the printing is for checking the result
-    for (w <- uniqueTuples) {
-      println(w)
-    } */
-
     uniqueTuples
   }
 }

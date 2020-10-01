@@ -17,21 +17,22 @@ object Beers extends App {
     myString
   }
 
+  /** Opening each file for analysis. */
   val mySeq1 = openSource(srcName1)
   val mySeq2 = openSource(srcName2)
   val mySeq3 = openSource(srcName3)
 
+  /** Transferring each file into array of tuples - a word and how many times it appears in an article.
+   * Also get rid of small words such as "the", "and" etc. */
   val beerArray1 = WordCount.getWordCount(mySeq1)
   val beerArray2 = WordCount.getWordCount(mySeq2)
   val beerArray3 = WordCount.getWordCount(mySeq3)
 
   val beerArray = beerArray1 ++ beerArray2 ++ beerArray3
 
-  println(beerArray)
-
   val beerDB = NewDatabase.createNewDatabase()
 
-  val writing = writeToDatabase.writeToDatabase(beerArray,"beersDB.db")
+  val writing = writeToDatabase.writeToDatabase(beerArray1,"beersDB.db")
 
   val mergedResult = mergeSameWords.mergeSameWords("beersDB.db")
 }

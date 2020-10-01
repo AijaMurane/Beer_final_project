@@ -1,3 +1,6 @@
+/** In the database file we merge the words that are the same.
+ * It should be done after several files are written in the database. */
+
 import java.sql.DriverManager
 import scala.collection.mutable.ListBuffer
 
